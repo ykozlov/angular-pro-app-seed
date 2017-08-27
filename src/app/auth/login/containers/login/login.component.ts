@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { Router } from '@angular/router';
+
+import { AuthService } from '../../../shared/services/auth/auth.service';
 
 @Component({
     selector: 'login',
@@ -9,12 +12,30 @@ import { FormGroup } from '@angular/forms';
         <h1>Login</h1>
         <a routerLink="/auth/register">Have not account?</a>
         <button type="submit">Login</button>
+        <div class="error" *ngIf="error">
+    {{error}}
+    </div>
     </auth-form>
     </div>
     `
 })
 export class LoginComponent {
-    loginUser(form: FormGroup): void {
-        console.log('login', form.value);
+    error:string;
+
+    constructor(
+        private authService: AuthService,
+        private router: Router
+    ) {
+    }
+
+    async loginUser(form: FormGroup) {
+        const { email, password } = form.value;
+
+        try {
+            await this.authService.loginUser(email, password);
+            this.router.navigate(['/']);
+        } catch (err) {
+            this.error = err.message;
+        }
     }
 }
